@@ -146,7 +146,7 @@
             <button id="launch-btn" onclick="triggerElectricBlast()"
                 class="liquid-button px-10 py-6 text-sm md:text-base tracking-widest uppercase shadow-2xl">
                 <span class="scan-line"></span>
-                ⚡ INITIALIZE SYSTEM CORE
+                INITIALIZE SYSTEM CORE
             </button>
             <p class="text-[11px] text-gray-500 mt-4 tracking-widest uppercase">Press [1, 2, 3] to navigate | [K] for
                 Command Bar</p>
@@ -166,11 +166,11 @@
                 onkeydown="handleCmd(event)">
             <div class="mt-4 text-[11px] text-gray-400 flex flex-wrap gap-2 font-mono">
                 <span class="bg-red-950/60 px-2 py-1 rounded cursor-pointer hover:text-amber-400"
-                    onclick="execCmd('home')">1. home</span>
+                    onclick="execCmd('home')">home</span>
                 <span class="bg-red-950/60 px-2 py-1 rounded cursor-pointer hover:text-amber-400"
-                    onclick="execCmd('about')">2. about</span>
+                    onclick="execCmd('about')">about</span>
                 <span class="bg-red-950/60 px-2 py-1 rounded cursor-pointer hover:text-amber-400"
-                    onclick="execCmd('projects')">3. projects</span>
+                    onclick="execCmd('projects')">projects</span>
             </div>
         </div>
     </div>
@@ -188,11 +188,11 @@
                 </div>
 
                 <div class="hidden md:flex items-center gap-8 text-gray-400 font-semibold">
-                    <span class="hover:text-amber-400 transition cursor-pointer" onclick="scrollToPage('page1')">[1]
+                    <span class="hover:text-amber-400 transition cursor-pointer" onclick="scrollToPage('page1')">
                         HOME</span>
-                    <span class="hover:text-amber-400 transition cursor-pointer" onclick="scrollToPage('page2')">[2]
+                    <span class="hover:text-amber-400 transition cursor-pointer" onclick="scrollToPage('page2')">
                         ABOUT & CONTACT</span>
-                    <span class="hover:text-amber-400 transition cursor-pointer" onclick="scrollToPage('page3')">[3]
+                    <span class="hover:text-amber-400 transition cursor-pointer" onclick="scrollToPage('page3')">
                         PROJECTS</span>
                 </div>
 
@@ -203,7 +203,7 @@
                         <span class="text-emerald-400">STATUS: ONLINE (12ms)</span>
                     </div>
                     <button onclick="toggleCommandPalette()" class="liquid-button px-4 py-2 text-[10px] font-mono">
-                        [K] CMD
+                        CMD
                     </button>
                 </div>
             </div>
