@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UnitUntil | S.M.Hossein P.Darvish</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GSAP Animation Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Syne:wght@700;800;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #040103;
+            --wine-glow: #9e1428;
+            --gold-glow: #d4af37;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #f3f4f6;
+            font-family: 'Space Grotesk', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .font-strong-title {
+            font-family: 'Syne', sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        /* Cyber Glassmorphic Panel */
+        .cyber-card {
+            background: rgba(30, 4, 10, 0.45);
+            backdrop-filter: blur(28px) saturate(200%);
+            -webkit-backdrop-filter: blur(28px) saturate(200%);
+            border: 1px solid rgba(158, 20, 40, 0.3);
+            box-shadow: 0 12px 50px 0 rgba(0, 0, 0, 0.9), inset 0 0 25px rgba(158, 20, 40, 0.25);
+            border-radius: 24px;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .cyber-card:hover {
+            border-color: rgba(212, 175, 55, 0.6);
+            box-shadow: 0 15px 60px 0 rgba(158, 20, 40, 0.5), inset 0 0 30px rgba(212, 175, 55, 0.2);
+        }
+
+        /* Interactive Dynamic Buttons */
+        .liquid-button {
+            background: rgba(18, 2, 6, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(158, 20, 40, 0.6);
+            border-radius: 18px;
+            color: var(--gold-glow);
+            font-weight: 600;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease, transform 0.2s ease-out;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .liquid-button:hover {
+            border-color: rgba(212, 175, 55, 1);
+            color: #ffffff;
+            box-shadow: 0 0 35px rgba(158, 20, 40, 0.9), inset 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Scan line animation */
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.4), transparent);
+            transition: left 0.8s ease;
+        }
+
+        .liquid-button:hover .scan-line {
+            left: 100%;
+        }
+
+        /* Floating Animation */
+        @keyframes floatingBtn {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .animate-floating {
+            animation: floatingBtn 3.5s ease-in-out infinite;
+        }
+
+        /* Interactive Name 3D Zone */
+        .name-interactive-box {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+
+        #interactive-title {
+            transition: transform 0.2s cubic-bezier(0.1, 1, 0.2, 1);
+            will-change: transform;
+        }
+
+        /* Canvas Background */
+        #main-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .content-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(40px);
+        }
+    </style>
+</head>
+
+<body class="scroll-smooth">
+
+    <!-- Canvas Background -->
+    <canvas id="main-canvas"></canvas>
+
+    <!-- INITIAL LAUNCHER -->
+    <div id="intro-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#040103]">
+        <div class="animate-floating text-center">
+            <button id="launch-btn" onclick="triggerElectricBlast()"
+                class="liquid-button px-10 py-6 text-sm md:text-base tracking-widest uppercase shadow-2xl">
+                <span class="scan-line"></span>
+                ⚡ INITIALIZE SYSTEM CORE
+            </button>
+            <p class="text-[11px] text-gray-500 mt-4 tracking-widest uppercase">Press [1, 2, 3] to navigate | [K] for
+                Command Bar</p>
+        </div>
+    </div>
+
+    <!-- COMMAND PALETTE -->
+    <div id="cmd-palette"
+        class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="max-w-xl w-full cyber-card p-6 border border-amber-500/50">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-xs text-amber-400 font-mono">// SYSTEM COMMAND CENTER [ESC TO CLOSE]</span>
+                <button onclick="toggleCommandPalette()" class="text-gray-400 hover:text-white">✕</button>
+            </div>
+            <input type="text" id="cmd-input" placeholder="Type command (e.g. 'home', 'projects', 'contact')..."
+                class="w-full bg-black/90 border border-red-900/80 rounded-xl p-3 text-sm text-gray-200 focus:outline-none focus:border-amber-400 font-mono"
+                onkeydown="handleCmd(event)">
+            <div class="mt-4 text-[11px] text-gray-400 flex flex-wrap gap-2 font-mono">
+                <span class="bg-red-950/60 px-2 py-1 rounded cursor-pointer hover:text-amber-400"
+                    onclick="execCmd('home')">1. home</span>
+                <span class="bg-red-950/60 px-2 py-1 rounded cursor-pointer hover:text-amber-400"
+                    onclick="execCmd('about')">2. about</span>
+                <span class="bg-red-950/60 px-2 py-1 rounded cursor-pointer hover:text-amber-400"
+                    onclick="execCmd('projects')">3. projects</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN WEBSITE CONTENT -->
+    <div id="main-content" class="content-hidden transition-all duration-1000">
+
+        <!-- NAVIGATION BAR -->
+        <header class="fixed top-4 left-0 w-full z-40 px-6">
+            <div
+                class="max-w-6xl mx-auto cyber-card px-6 py-3 flex justify-between items-center text-xs tracking-widest">
+                <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping"></span>
+                    <span class="text-gray-100 font-bold">UNITUNTIL // CORE</span>
+                </div>
+
+                <div class="hidden md:flex items-center gap-8 text-gray-400 font-semibold">
+                    <span class="hover:text-amber-400 transition cursor-pointer" onclick="scrollToPage('page1')">[1]
+                        HOME</span>
+                    <span class="hover:text-amber-400 transition cursor-pointer" onclick="scrollToPage('page2')">[2]
+                        ABOUT & CONTACT</span>
+                    <span class="hover:text-amber-400 transition cursor-pointer" onclick="scrollToPage('page3')">[3]
+                        PROJECTS</span>
+                </div>
+
+                <!-- LIVE STATUS BADGE -->
+                <div class="flex items-center gap-4">
+                    <div class="hidden lg:flex flex-col text-right text-[9px] font-mono text-gray-400">
+                        <span id="live-time" class="text-amber-400">00:00:00 UTC</span>
+                        <span class="text-emerald-400">STATUS: ONLINE (12ms)</span>
+                    </div>
+                    <button onclick="toggleCommandPalette()" class="liquid-button px-4 py-2 text-[10px] font-mono">
+                        [K] CMD
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- SECTION 1: HERO -->
+        <section id="page1"
+            class="h-screen flex flex-col justify-between items-center p-6 pt-24 pb-8 relative overflow-hidden">
+
+            <!-- HOVER-ONLY 3D NAME SECTION -->
+            <div id="hero-name-container"
+                class="name-interactive-box text-center py-6 px-4 w-full max-w-5xl my-auto cursor-pointer">
+                <h1 id="interactive-title"
+                    class="text-4xl md:text-7xl lg:text-8xl font-strong-title font-black text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-amber-400 to-red-500 drop-shadow-2xl uppercase tracking-tight select-none">
+                    S.M.HOSSEIN P.DARVISH
+                </h1>
+                <p class="text-sm md:text-xl text-amber-500/90 tracking-widest mt-4 font-light uppercase">
+                    FOUNDER & SYSTEM ARCHITECT AT <span class="font-bold text-white">UNITUNTIL</span>
+                </p>
+            </div>
+
+            <!-- METRICS CARDS -->
+            <div class="max-w-5xl w-full grid grid-cols-2 md:grid-cols-4 gap-3 my-2">
+                <div class="cyber-card p-4 text-center liquid-button">
+                    <span class="text-[9px] text-amber-400 uppercase tracking-widest">SECURITY ARCHITECTURE</span>
+                    <p class="text-base font-bold text-gray-100 mt-1">AI Firewall</p>
+                </div>
+                <div class="cyber-card p-4 text-center liquid-button">
+                    <span class="text-[9px] text-amber-400 uppercase tracking-widest">WEB DEVELOPMENT</span>
+                    <p class="text-base font-bold text-gray-100 mt-1">Full-Stack</p>
+                </div>
+                <div class="cyber-card p-4 text-center liquid-button">
+                    <span class="text-[9px] text-amber-400 uppercase tracking-widest">FINTECH INTELLIGENCE</span>
+                    <p class="text-base font-bold text-gray-100 mt-1">UU Redollor</p>
+                </div>
+                <div class="cyber-card p-4 text-center liquid-button">
+                    <span class="text-[9px] text-amber-400 uppercase tracking-widest">HARDWARE ECOSYSTEM</span>
+                    <p class="text-base font-bold text-gray-100 mt-1">Monopod 2.5</p>
+                </div>
+            </div>
+
+            <!-- TERMINAL LOG -->
+            <div class="max-w-lg w-full cyber-card px-4 py-2 text-center text-xs font-mono text-gray-300 my-2">
+                <span id="terminal-text" class="text-amber-400">> System Ready...</span>
+            </div>
+
+            <!-- NAVIGATION DOWN BUTTON -->
+            <button onclick="scrollToPage('page2')"
+                class="liquid-button px-8 py-3 text-xs tracking-widest flex items-center gap-3 z-20 shrink-0">
+                <span class="scan-line"></span>
+                PROCEED TO PROFILE
+                <span>▼</span>
+            </button>
+        </section>
+
+        <!-- SECTION 2: ABOUT & CONTACT -->
+        <section id="page2" class="min-h-screen flex items-center justify-center p-6 md:p-12 relative pt-24">
+            <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                <!-- ABOUT & SKILLS -->
+                <div class="lg:col-span-7 flex flex-col gap-6">
+                    <div class="cyber-card p-8">
+                        <span class="text-xs text-amber-400 tracking-widest font-mono uppercase">// 02 . ARCHITECT
+                            PROFILE</span>
+                        <h2 class="text-3xl md:text-4xl font-strong-title text-gray-100 mt-2 mb-4 uppercase">BUILDING
+                            NEXT-GEN DIGITAL ECOSYSTEMS</h2>
+                        <p class="text-sm text-gray-300 leading-relaxed">
+                            I am <span class="text-amber-400 font-semibold">S.M.Hossein P.Darvish</span>, founder of
+                            <span class="text-red-400 font-semibold">UnitUntil</span>. Developing cutting-edge software
+                            solutions ranging from high-speed AI security Firewalls to bespoke fintech analytics and
+                            smart hardware systems.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="cyber-card p-5 liquid-button">
+                            <h4 class="text-amber-400 font-bold text-sm">Cyber Security & AI</h4>
+                            <p class="text-xs text-gray-400 mt-1">Custom rule ordering & real-time threat detection.</p>
+                        </div>
+                        <div class="cyber-card p-5 liquid-button">
+                            <h4 class="text-amber-400 font-bold text-sm">Full-Stack Engineering</h4>
+                            <p class="text-xs text-gray-400 mt-1">High-performance reactive interfaces and architecture.
+                            </p>
+                        </div>
+                        <div class="cyber-card p-5 liquid-button">
+                            <h4 class="text-amber-400 font-bold text-sm">Fintech Analytics</h4>
+                            <p class="text-xs text-gray-400 mt-1">Prediction engines and asset management tools.</p>
+                        </div>
+                        <div class="cyber-card p-5 liquid-button">
+                            <h4 class="text-amber-400 font-bold text-sm">Smart Automation</h4>
+                            <p class="text-xs text-gray-400 mt-1">Hardware modules for smart factory automation.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTACT & TELEGRAM LINKS -->
+                <div class="lg:col-span-5 flex flex-col justify-between gap-6">
+                    <div class="grid grid-cols-1 gap-3">
+                        <a href="https://t.me/" target="_blank" onclick="playClickSound()"
+                            class="liquid-button p-4 text-xs tracking-widest flex items-center justify-between px-5">
+                            <span>PERSONAL TELEGRAM</span>
+                            <span class="text-amber-400">💬</span>
+                        </a>
+                        <a href="https://t.me/" target="_blank" onclick="playClickSound()"
+                            class="liquid-button p-4 text-xs tracking-widest flex items-center justify-between px-5">
+                            <span>BUSINESS TELEGRAM</span>
+                            <span class="text-amber-400">📢</span>
+                        </a>
+                        <div class="grid grid-cols-2 gap-3">
+                            <a href="https://github.com/" target="_blank" onclick="playClickSound()"
+                                class="liquid-button p-3 text-center text-xs tracking-widest flex items-center justify-between px-4">
+                                <span>GITHUB</span>
+                                <span class="text-amber-400">💻</span>
+                            </a>
+                            <a href="https://instagram.com/" target="_blank" onclick="playClickSound()"
+                                class="liquid-button p-3 text-center text-xs tracking-widest flex items-center justify-between px-4">
+                                <span>INSTAGRAM</span>
+                                <span class="text-amber-400">📷</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Direct Email Form -->
+                    <div class="cyber-card p-6">
+                        <h3 class="text-xl font-strong-title text-red-300 mb-4 uppercase">DIRECT TRANSMISSION</h3>
+                        <form onsubmit="sendEmail(event)" class="space-y-4">
+                            <div>
+                                <textarea id="msg-body" rows="3" required
+                                    class="w-full bg-black/70 border border-red-900/50 rounded-xl p-3 text-xs text-gray-200 focus:outline-none focus:border-amber-400 transition font-mono"
+                                    placeholder="Write your message..."></textarea>
+                            </div>
+                            <div class="flex items-center justify-between gap-2">
+                                <button type="button" onclick="copyEmail()"
+                                    class="liquid-button px-4 py-3 text-[10px] tracking-wider">
+                                    <span id="copy-text">COPY EMAIL</span>
+                                </button>
+                                <button type="submit"
+                                    class="liquid-button px-6 py-3 text-[10px] tracking-widest uppercase">
+                                    <span class="scan-line"></span>
+                                    TRANSMIT ✉️
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: PROJECTS -->
+        <section id="page3" class="min-h-screen flex flex-col justify-between p-6 md:p-12 relative pt-24">
+            <div class="max-w-6xl mx-auto w-full">
+                <div class="text-center mb-8">
+                    <span class="text-xs text-amber-400 tracking-widest font-mono uppercase">// 03 . PROJECT
+                        ECOSYSTEM</span>
+                    <h2 class="text-3xl md:text-5xl font-strong-title text-gray-100 uppercase mt-2">UNITUNTIL
+                        INNOVATIONS</h2>
+                </div>
+
+                <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 relative min-h-[420px]">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <footer
+                class="mt-12 max-w-6xl mx-auto w-full flex justify-between items-center text-xs text-gray-500 border-t border-red-950/50 pt-6">
+                <span class="liquid-button px-4 py-2">UnitUntil © S.M.Hossein P.Darvish</span>
+                <button onclick="scrollToPage('page1')" class="liquid-button px-4 py-2">
+                    RETURN TO TOP ▲
+                </button>
+            </footer>
+        </section>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- SYNTHESIZED CYBER SFX ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playClickSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.08);
+        }
+
+        const projectData = [
+            {
+                id: 1,
+                tag: "01 / CYBER SECURITY",
+                title: "UU Fireman",
+                short: "AI-driven customizable firewall architecture.",
+                desc: "UU Fireman is a next-generation security firewall engineered with integrated AI capabilities. It allows clients to completely customize rule ordering dynamically, performing deep packet inspection and automated threat mitigation in real time."
+            },
+            {
+                id: 2,
+                tag: "02 / DIGITAL EXPERIENCE",
+                title: "Bespoke Web Systems",
+                short: "Immersive 3D interactive web applications.",
+                desc: "Custom web development combining futuristic liquid-glass aesthetics, custom shaders, GSAP animations, and lightning-fast full-stack backends built for maximum modern impact."
+            },
+            {
+                id: 3,
+                tag: "03 / FINTECH INTELLIGENCE",
+                title: "UU Redollor",
+                short: "Algorithmic financial intelligence suite.",
+                desc: "A smart financial software ecosystem designed for high-precision currency and market analysis, giving users automated predictions, trends, and asset management analytics."
+            },
+            {
+                id: 4,
+                tag: "04 / HARDWARE & AUTOMATION",
+                title: "Monopod 2.5",
+                short: "Smart factory industrial hardware module.",
+                desc: "An innovative hardware module designed specifically for electric smart factory integration and robotics automation. Detailed technical schematics will be unlocked upon official launch."
+            }
+        ];
+
+        let activeProjectId = null;
+
+        function renderProjects() {
+            const grid = document.getElementById('projects-grid');
+            grid.innerHTML = '';
+
+            projectData.forEach(p => {
+                grid.innerHTML += `
+                    <div id="proj-card-${p.id}" onclick="expandProject(${p.id})" class="cyber-card p-6 cursor-pointer liquid-button flex flex-col justify-between min-h-[220px]">
+                        <span class="scan-line"></span>
+                        <div>
+                            <span class="text-xs text-amber-400 font-mono tracking-widest">${p.tag}</span>
+                            <h3 class="text-2xl font-bold text-gray-100 mt-2 font-strong-title">${p.title}</h3>
+                            <p class="text-xs text-gray-400 mt-2 leading-relaxed">${p.short}</p>
+                        </div>
+                        
+                        <div id="proj-desc-${p.id}" class="hidden opacity-0 mt-6 pt-6 border-t border-red-900/50 text-sm text-gray-300 leading-relaxed">
+                            <p>${p.desc}</p>
+                            <div class="mt-6 flex flex-wrap gap-4">
+                                <button onclick="event.stopPropagation(); playClickSound(); closeProject(${p.id});" class="liquid-button px-5 py-2.5 text-xs">
+                                    ← BACK TO ALL MODULES
+                                </button>
+                                <button onclick="event.stopPropagation(); playClickSound(); scrollToPage('page2');" class="liquid-button px-5 py-2.5 text-xs">
+                                    REQUEST DEMO
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            for (let i = projectData.length + 1; i <= 6; i++) {
+                grid.innerHTML += `
+                    <div class="locked-card cyber-card p-6 opacity-25 cursor-not-allowed flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs text-gray-500 font-mono">0${i} / FUTURE MODULE</span>
+                            <h3 class="text-xl font-strong-title text-gray-500 mt-2">Classified Project</h3>
+                        </div>
+                        <span class="text-[10px] text-gray-600 uppercase font-mono">[In Development]</span>
+                    </div>
+                `;
+            }
+
+            attachButtonTilt();
+        }
+
+        // --- GSAP EXPANSION ---
+        function expandProject(id) {
+            playClickSound();
+            if (activeProjectId === id) return;
+            activeProjectId = id;
+
+            projectData.forEach(p => {
+                if (p.id !== id) {
+                    gsap.to(`#proj-card-${p.id}`, { opacity: 0, scale: 0.9, duration: 0.4, ease: "power3.inOut", pointerEvents: 'none' });
+                }
+            });
+            gsap.to('.locked-card', { opacity: 0, scale: 0.9, duration: 0.4, ease: "power3.inOut", pointerEvents: 'none' });
+
+            const selectedCard = `#proj-card-${id}`;
+            const desc = `#proj-desc-${id}`;
+
+            gsap.to(selectedCard, {
+                gridColumn: "span 3 / span 3",
+                scale: 1.02,
+                duration: 0.7,
+                ease: "power4.out",
+                onComplete: () => {
+                    const descEl = document.querySelector(desc);
+                    descEl.classList.remove('hidden');
+                    gsap.to(descEl, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" });
+                }
+            });
+        }
+
+        function closeProject(id) {
+            const desc = `#proj-desc-${id}`;
+            const selectedCard = `#proj-card-${id}`;
+
+            gsap.to(desc, {
+                opacity: 0,
+                duration: 0.25,
+                ease: "power2.in",
+                onComplete: () => {
+                    document.querySelector(desc).classList.add('hidden');
+
+                    gsap.to(selectedCard, {
+                        gridColumn: "span 1 / span 1",
+                        scale: 1,
+                        duration: 0.6,
+                        ease: "power4.inOut"
+                    });
+
+                    projectData.forEach(p => {
+                        gsap.to(`#proj-card-${p.id}`, { opacity: 1, scale: 1, duration: 0.6, ease: "power3.out", pointerEvents: 'auto' });
+                    });
+                    gsap.to('.locked-card', { opacity: 0.25, scale: 1, duration: 0.6, ease: "power3.out", pointerEvents: 'none' });
+
+                    activeProjectId = null;
+                }
+            });
+        }
+
+        renderProjects();
+
+        // --- HOVER-ONLY 3D REACTION FOR THE NAME ---
+        const heroContainer = document.getElementById('hero-name-container');
+        const mainTitle = document.getElementById('interactive-title');
+
+        if (heroContainer && mainTitle) {
+            heroContainer.addEventListener('mousemove', (e) => {
+                const rect = heroContainer.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                const rotateX = ((e.clientY - centerY) / (rect.height / 2)) * -20;
+                const rotateY = ((e.clientX - centerX) / (rect.width / 2)) * 20;
+
+                mainTitle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(30px)`;
+            });
+
+            heroContainer.addEventListener('mouseleave', () => {
+                // Smoothly snap back to solid static center
+                mainTitle.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(0px)`;
+            });
+        }
+
+        // --- 3D CARD TILT EFFECT ---
+        function attachButtonTilt() {
+            document.querySelectorAll('.liquid-button').forEach(btn => {
+                btn.addEventListener('mousemove', (e) => {
+                    const rect = btn.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+
+                    const rotateX = ((y - centerY) / centerY) * -12;
+                    const rotateY = ((x - centerX) / centerX) * 12;
+
+                    btn.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                });
+
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
+                });
+            });
+        }
+
+        // --- LIVE CLOCK ---
+        setInterval(() => {
+            const timeEl = document.getElementById('live-time');
+            if (timeEl) {
+                const now = new Date();
+                timeEl.innerText = now.toUTCString().split(' ')[4] + ' UTC';
+            }
+        }, 1000);
+
+        // --- COMMAND PALETTE LOGIC ---
+        function toggleCommandPalette() {
+            playClickSound();
+            const palette = document.getElementById('cmd-palette');
+            if (palette.classList.contains('hidden')) {
+                palette.classList.remove('hidden');
+                palette.classList.add('flex');
+                document.getElementById('cmd-input').focus();
+            } else {
+                palette.classList.add('hidden');
+                palette.classList.remove('flex');
+            }
+        }
+
+        function handleCmd(e) {
+            if (e.key === 'Enter') {
+                const val = e.target.value.toLowerCase().trim();
+                execCmd(val);
+                e.target.value = '';
+            }
+        }
+
+        function execCmd(cmd) {
+            toggleCommandPalette();
+            if (cmd.includes('home') || cmd === '1') scrollToPage('page1');
+            if (cmd.includes('about') || cmd.includes('contact') || cmd === '2') scrollToPage('page2');
+            if (cmd.includes('project') || cmd === '3') scrollToPage('page3');
+        }
+
+        // Keybindings Shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (e.key === '1') scrollToPage('page1');
+            if (e.key === '2') scrollToPage('page2');
+            if (e.key === '3') scrollToPage('page3');
+            if (e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                toggleCommandPalette();
+            }
+            if (e.key === 'Escape') {
+                if (!document.getElementById('cmd-palette').classList.contains('hidden')) toggleCommandPalette();
+                if (activeProjectId) closeProject(activeProjectId);
+            }
+        });
+
+        // --- PARTICLE CANVAS ---
+        const canvas = document.getElementById('main-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, mouseX = 0, mouseY = 0;
+        let particles = [];
+
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        class Particle {
+            constructor(x, y, isElectric = false) {
+                this.x = x;
+                this.y = y;
+                this.isElectric = isElectric;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = isElectric ? Math.random() * 20 + 5 : Math.random() * 6 + 1;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.02 + 0.008;
+                this.color = isElectric
+                    ? (Math.random() > 0.4 ? '#d4af37' : '#9e1428')
+                    : '#5a0a16';
+                this.size = isElectric ? Math.random() * 3 + 1 : Math.random() * 3 + 1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vx *= 0.94;
+                this.vy *= 0.94;
+                this.alpha -= this.decay;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(this.alpha, 0);
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = this.isElectric ? 12 : 4;
+                ctx.shadowColor = this.color;
+
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function triggerElectricBlast() {
+            playClickSound();
+            const btn = document.getElementById('launch-btn');
+            const rect = btn.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            for (let i = 0; i < 200; i++) particles.push(new Particle(centerX, centerY, true));
+
+            gsap.to('#intro-screen', {
+                opacity: 0,
+                duration: 0.8,
+                ease: "power2.out",
+                onComplete: () => {
+                    document.getElementById('intro-screen').style.display = 'none';
+                    const content = document.getElementById('main-content');
+                    content.classList.remove('content-hidden');
+                    window.scrollTo(0, 0);
+                    gsap.to(content, { opacity: 1, y: 0, duration: 1, ease: "power3.out" });
+                }
+            });
+        }
+
+        function renderCanvas() {
+            ctx.clearRect(0, 0, width, height);
+
+            let gradX = mouseX || width / 2;
+            let gradY = mouseY || height / 2;
+            let gradient = ctx.createRadialGradient(gradX, gradY, 20, gradX, gradY, 800);
+            gradient.addColorStop(0, 'rgba(158, 20, 40, 0.25)');
+            gradient.addColorStop(0.6, 'rgba(20, 3, 7, 0.15)');
+            gradient.addColorStop(1, 'rgba(4, 1, 3, 1)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            particles.forEach((p, index) => {
+                p.update();
+                p.draw();
+                if (p.alpha <= 0) particles.splice(index, 1);
+            });
+
+            requestAnimationFrame(renderCanvas);
+        }
+        renderCanvas();
+
+        function scrollToPage(id) {
+            playClickSound();
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyEmail() {
+            playClickSound();
+            navigator.clipboard.writeText("seyed...@email.com");
+            const btn = document.getElementById('copy-text');
+            btn.innerText = "COPIED!";
+            setTimeout(() => btn.innerText = "COPY EMAIL", 2000);
+        }
+
+        function sendEmail(e) {
+            e.preventDefault();
+            playClickSound();
+            const msg = document.getElementById('msg-body').value;
+            window.location.href = `mailto:seyed...@email.com?body=${encodeURIComponent(msg)}`;
+        }
+    </script>
+</body>
+
+</html>
